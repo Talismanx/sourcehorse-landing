@@ -1,358 +1,1124 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>ClickEffects — Make clicks feel alive</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="ClickEffects adds delightful, customizable particle pops to your mouse clicks.">
-  <meta property="og:title" content="ClickEffects — Make clicks feel alive">
-  <meta property="og:description" content="A lightweight Chrome extension for delightful click pops.">
-  <meta property="og:type" content="website">
-  <meta name="theme-color" content="#0b1530">
-<meta name="google-site-verification" content="PtXUy73Ha4xl7Gi9ogAOIcO1A92_wnDT7ViUPXisyLE" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SourceHorse — Your AI Browsing Buddy</title>
+
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="icon2.png" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <!-- Social / Open Graph -->
+  <meta property="og:title" content="SourceHorse — Your AI Browsing Buddy" />
+  <meta property="og:description" content="Analyze web pages instantly, fact-check claims, and browse smarter with SourceHorse." />
+  <meta property="og:image" content="https://sourcehorse.vercel.app/socialpreview.png" />
+  <meta property="og:url" content="https://sourcehorse.vercel.app" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://sourcehorse.vercel.app/socialpreview.png" />
+
+  <!-- Mobile optimization -->
+  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="color-scheme" content="dark light">
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    /* CSS Variables for easy theming */
     :root {
-      --bg: #0b1530;
-      --text: #e8f0ff;
-      --muted: #b7c3e0;
-      --brand: #66ccff;
-      --brand-2: #5aa7ff;
-      --border: #253054;
-
-      /* Teaser FX color */
-      --fx-color: #66ccff;
-      --fx-count: 24;
-      --fx-size-min: 2;
-      --fx-size-max: 5;
-      --fx-speed-min: 160;
-      --fx-speed-max: 420;
-      --fx-gravity: 750;
-      --fx-life-min: 350;
-      --fx-life-max: 850;
+      --primary: #ff6b35;
+      --primary-dark: #e55a2b;
+      --secondary: #ffd23f;
+      --accent: #ffffff;
+      --dark: #1a1a2e;
+      --dark-light: #16213e;
+      --dark-lighter: #0f3460;
+      --text-light: #e94560;
+      --glass: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --gradient-primary: linear-gradient(135deg, #ff6b35, #ffd23f);
+      --gradient-secondary: linear-gradient(135deg, #ffbb00, #ffffff);
+      --gradient-dark: linear-gradient(135deg, #ffe0b2, #ffcc80, #ffb347);
     }
 
-    * { box-sizing: border-box; }
-    body {
+    /* Global Reset & Base */
+    * {
       margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial;
-      background:
-        radial-gradient(1200px 600px at 20% -10%, #142455 0%, rgba(20,36,85,0) 60%),
-        radial-gradient(900px 500px at 100% 20%, #0f2460 0%, rgba(15,36,96,0) 60%),
-        var(--bg);
-      color: var(--text);
-      line-height: 1.5;
+      padding: 0;
+      box-sizing: border-box;
     }
-    a { color: inherit; text-decoration: none; }
 
-    .container {
-      width: min(1100px, 92vw);
-      margin: 0 auto;
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--gradient-dark);
+      color: white;
+      line-height: 1.6;
+      overflow-x: hidden;
       position: relative;
-      z-index: 1;
     }
 
-    #fx-teaser {
+    :root {
+      --gradient-dark: linear-gradient(135deg, #ffcc80, #ff9933, #e67300, #f1f1f1);
+    }
+
+    body::before {
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 247, 237, 0.7) 0%, transparent 50%), /* near-white glow */
+        radial-gradient(circle at 80% 20%, rgba(255, 210, 63, 0.4) 0%, transparent 50%),  /* golden yellow */
+        radial-gradient(circle at 40% 40%, rgba(207, 188, 13, 0.3) 0%, transparent 50%); /* soft orange */
+    }
+
+    @keyframes backgroundShift {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.1); }
+    }
+
+    /* Glassmorphism utility */
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+    }
+
+    /* Modern Navigation */
+    nav {
       position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      #fx-teaser { display: none !important; }
-    }
-
-    header {
-      padding: 72px 0 48px;
-      text-align: center;
-    }
-    .logo {
-      width: clamp(400px, 20vw, 200px);
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-      margin: 0 auto 24px;
-      display: block;
-    }
-    h1 {
-      font-size: clamp(36px, 5vw, 56px);
-      margin: 0 0 12px;
-      letter-spacing: -0.02em;
-    }
-    .sub {
-      font-size: clamp(16px, 1.7vw, 18px);
-      color: var(--muted);
-      margin: 0 0 28px;
-      max-width: 680px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, var(--brand), var(--brand-2));
-      color: #0b1020;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      transition: transform .15s ease, filter .15s ease;
-      box-shadow: 0 8px 20px rgba(102,204,255,0.25);
-    }
-    .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
-
-    section.features {
-      padding: 28px 0 84px;
-      text-align: center;
-    }
-    .features-grid {
-      margin-top: 28px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 18px;
-    }
-    .card {
-      border: 1px solid var(--border);
-      background: rgba(15,20,45,0.7);
-      border-radius: 14px;
-      padding: 20px;
-      text-align: left;
-      transition: transform .15s ease, box-shadow .15s ease;
-    }
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
-    }
-    .card h3 { margin: 0 0 8px; font-size: 18px; }
-    .card p  { margin: 0; color: var(--muted); font-size: 15px; }
-
-    footer {
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      padding: 24px 0 48px;
-      text-align: center;
-    }
-
-    /* Floating tip (centered) */
-    .click-tip {
-      position: fixed;
+      top: 20px;
       left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 2;
-      display: inline-flex;
+      transform: translateX(-50%);
+      z-index: 1000;
+      padding: 12px 24px;
+      border-radius: 50px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    nav.scrolled {
+      top: 10px;
+      transform: translateX(-50%) scale(0.95);
+    }
+
+    .nav-content {
+      display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px 18px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(17,28,60,0.9);
-      color: var(--muted);
-      backdrop-filter: blur(6px);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
-      animation: tip-bob 2.8s ease-in-out infinite;
-      transition: opacity .35s ease, transform .35s ease;
+      gap: 30px;
     }
-    .click-tip.hide {
+
+    nav img {
+      height: 35px;
+      filter: brightness(1.2);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 25px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Login Bubble Styles */
+/* Login Bubble Styles */
+.login-bubble-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.login-bubble-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('sourcehorsefulllogo3.png'); /* Change to your desired image */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.2; /* Adjust this to control background visibility */
+  z-index: -1;
+  mask: radial-gradient(ellipse at center, black 30%, transparent 90%);
+  -webkit-mask: radial-gradient(ellipse at center, black 30%, transparent 90%);
+}
+
+.login-bubble {
+  max-width: 500px;
+  padding: 1.5rem 2rem;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-bubble:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.bubble-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.bubble-content {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.bubble-content strong {
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .login-bubble {
+    padding: 1.2rem 1.5rem;
+    max-width: 90%;
+  }
+  
+  .bubble-content {
+    font-size: 0.85rem;
+  }
+  
+  .bubble-icon {
+    font-size: 1.3rem;
+  }
+}
+
+    /* Hero Section */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 80px 20px 40px;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('sourcehorsefulllogo4.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.8; /* Adjust this to control background visibility */
+  z-index: -1;
+  mask: radial-gradient(ellipse at center, black 40%, transparent 97%);
+  -webkit-mask: radial-gradient(ellipse at center, black 40%, transparent 97%);
+}
+
+.hero-content {
+  max-width: 800px;
+  z-index: 2;
+  position: relative;
+}
+
+    .hero img {
+      width: 220px;
+      margin-bottom: 30px;
+      animation: float 6s ease-in-out infinite;
+      filter: drop-shadow(0 10px 30px rgba(255, 107, 53, 0.3));
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .hero h1 {
+      background: linear-gradient(135deg, #ffffff, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: clamp(1.3rem, 2.5vw, 1.5rem);
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .hero h2,
+    h2 {
+      background: linear-gradient(135deg, #fff, #ffb347);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .hero p {
+      font-size: clamp(1.1rem, 2vw, 1.3rem);
+      margin-bottom: 40px;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    /* Screenshot styling */
+    .screenshot {
+      width: 100%;
+      max-width: 600px;
+      max-height: 360px;
+      margin: 40px auto;
+      border-radius: 12px;
+      padding: 8px;
+      background: var(--gradient-primary);
+      box-shadow: 0 20px 60px rgba(255, 107, 53, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screenshot::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.8s ease;
+    }
+
+    .screenshot:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 30px 80px rgba(255, 107, 53, 0.5);
+    }
+
+    .screenshot:hover::before {
+      left: 100%;
+    }
+
+    .screenshot img {
+      width: 150%;
+      border-radius: 12px;
+      display: block;
+      filter: brightness(1.05) contrast(1.1);
+    }
+
+ /* CTA Button with advanced effects */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+  background: var(--gradient-primary);
+  color: white;
+  padding: 18px 36px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 60px; /* curve */
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(255, 107, 53, 0.3);
+
+  border: 3px solid transparent; /* base border */
+  background-clip: padding-box;   /* ensure border follows curve */
+}
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .cta:hover::before {
+      left: 100%;
+    }
+
+    .cta:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 20px 60px rgba(255, 107, 53, 0.4);
+      border-color: var(--accent);
+    }
+
+    .cta-icon {
+      font-size: 1.2rem;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-5px); }
+      60% { transform: translateY(-3px); }
+    }
+
+    /* Modern Sections */
+    section {
+      padding: 80px 20px;
+      position: relative;
+    }
+
+   .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('sourcehorsefulllogo5.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.9; /* Adjust this to control background visibility */
+  z-index: -1;
+  mask: radial-gradient(ellipse at center, black 40%, transparent 97%);
+  -webkit-mask: radial-gradient(ellipse at center, black 40%, transparent 97%);
+}
+  
+    
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 60px;
+      background: linear-gradient(135deg, #fff, #ffdd1e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+.icon-shape {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  background: linear-gradient(135deg, #ffd280, #ff9933); /* orange/gold */
+  transform: rotate(45deg); /* makes a diamond */
+  border-radius: 3px; /* slight rounding for modern feel */
+  box-shadow: 0 0 6px rgba(255, 153, 51, 0.5);
+}
+
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* always 2 columns */
+  gap: 30px;
+  margin-top: 30px;
+  position: relative;
+}
+
+.features::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('sourcehorsefulllogo3.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.8; /* Adjust this to control background visibility */
+  z-index: -1;
+  mask: radial-gradient(ellipse at center, black 30%, transparent 90%);
+  -webkit-mask: radial-gradient(ellipse at center, black 30%, transparent 90%);
+}
+
+.feature {
+  padding: 40px 30px;
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.feature::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.feature:hover::before {
+  opacity: 0.1;
+}
+
+.feature:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.feature h3 {
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.feature p {
+  opacity: 0.8;
+  line-height: 1.6;
+}
+
+    /* Steps with modern design */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-top: 60px;
+    }
+
+    .step {
+      text-align: center;
+      padding: 40px 20px;
+      border-radius: 20px;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .step:hover {
+      transform: scale(1.05);
+    }
+
+    .step-number {
+      width: 60px;
+      height: 60px;
+      background: var(--gradient-secondary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 auto 20px;
+      color: white;
+    }
+
+    /* Pricing with modern cards */
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 60px;
+      
+    }
+
+    .plan {
+      padding: 40px 30px;
+      border-radius: 20px;
+      text-align: center;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+    }
+
+    .plan:hover {
+      transform: translateY(-10px);
+      border-color: var(--accent);
+      box-shadow: 0 20px 60px rgba(6, 255, 165, 0.2);
+    }
+
+    .plan.featured {
+      border-color: var(--primary);
+      position: relative;
+    }
+
+    .plan.featured::before {
+      content: 'POPULAR';
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gradient-primary);
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .plan h3 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+
+    /* Privacy section special styling */
+    .privacy-section {
+      text-align: center;
+      margin-bottom: 40px;
+     
+    }
+
+    .privacy-highlight {
+      background: var(--gradient-secondary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 600;
+    }
+
+    /* FAQ Section */
+    .faq {
+      max-width: 800px;
+      margin: 60px auto 0;
+      background-image: url('sourcehorsefulllogo4.png');
+  background-size: cover; /* or contain, depending on desired effect */
+  background-position: center;
+  background-repeat: no-repeat;
+    }
+
+    .faq-item {
+      border-radius: 15px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      padding: 25px 30px;
+    }
+
+    .faq-item:hover {
+      transform: translateX(10px);
+    }
+
+    .faq-item h3 {
+      color: var(--accent);
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+    }
+
+    .faq-item p {
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    /* Details section improvements */
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin: 60px 0 40px;
+    }
+
+    .details-grid .card {
+      padding: 30px;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .details-grid .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .details-accordions details {
+      border-radius: 15px;
+      margin: 20px 0;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .details-accordions summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 1.1rem;
+      padding: 10px 0;
+    }
+
+    /* Keyboard shortcuts styling */
+    .kbd {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--dark-lighter);
+      border: 1px solid var(--glass-border);
+      border-radius: 6px;
+      font-family: 'Inter', monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .kbt {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .kbt td {
+      padding: 12px;
+      border-bottom: 1px solid var(--glass-border);
+      vertical-align: top;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      padding: 40px 20px;
+      text-align: center;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      margin: 0 15px;
+      transition: opacity 0.3s ease;
+    }
+
+    footer a:hover {
+      opacity: 0.7;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      nav {
+        padding: 10px 20px;
+      }
+
+      .hero {
+        min-height: 100vh;
+        padding: 120px 20px 60px;
+        justify-content: flex-start;
+        padding-top: 100px;
+      }
+
+      .hero-content {
+        max-width: 100%;
+        margin-top: 20px;
+      }
+
+      .hero img {
+        width: 180px;
+        margin-bottom: 20px;
+      }
+
+      .hero h1 {
+        font-size: clamp(1.1rem, 4vw, 1.4rem);
+        margin-bottom: 15px;
+      }
+
+      .hero p {
+        font-size: 1rem;
+        margin-bottom: 30px;
+      }
+
+      .screenshot {
+        max-width: 90%;
+        margin: 30px auto;
+      }
+
+
+      .steps, .pricing-cards {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      section {
+        padding: 60px 20px;
+      }
+
+      h2 {
+        font-size: clamp(1.8rem, 6vw, 2.5rem);
+        margin-bottom: 40px;
+      }
+
+      .faq-item {
+        padding: 20px 25px;
+      }
+    }
+
+    /* Scroll animations */
+    .animate-on-scroll {
       opacity: 0;
-      transform: translate(-50%, calc(-50% + 10px));
-      pointer-events: none;
+      transform: translateY(30px);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .click-tip .dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--brand);
-      box-shadow: 0 0 14px rgba(102,204,255,0.7);
-    }
-    .click-tip .txt { font-size: 15px; }
-    @keyframes tip-bob {
-      0%,100% { transform: translate(-50%, -50%); }
-      50%     { transform: translate(-50%, calc(-50% - 6px)); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .click-tip { animation: none; }
+
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
   </style>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-976201115"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-976201115');
+  </script>
 </head>
 <body>
-  <!-- Teaser canvas -->
-  <canvas id="fx-teaser"></canvas>
 
-  <!-- Centered tip -->
-  <div class="click-tip" id="clickTip" role="status" aria-live="polite">
-    <span class="dot" aria-hidden="true"></span>
-    <span class="txt">Click anywhere!</span>
-  </div>
-
-  <header>
-    <div class="container">
-      <img src="icon.png" alt="ClickEffects logo" class="logo" width="384" height="256">
-      <h1>Make clicks feel <span style="background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent">alive</span>.</h1>
-      <p class="sub">
-        ClickEffects adds delightful, customizable particle pops to every mouse click.
-        Choose your color and vibe—subtle or sparkly—for a browsing experience that’s more fun.
-      </p>
-      <a id="download" 
-   class="btn" 
-   href="https://chromewebstore.google.com/detail/clickeffects/fegikheckgpifdanlegeaiailfnaefdh" 
-   target="_blank" 
-   rel="noopener noreferrer">
-        <svg width="18" height="18" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-          <path fill="#FBBC05" d="M24 9h16a19 19 0 0 1 0 30L24 24z"/>
-          <path fill="#34A853" d="M24 24 8 39A19 19 0 0 1 24 9v15z"/>
-          <path fill="#EA4335" d="M40 9 24 24 16 9z"/>
-          <circle cx="24" cy="24" r="8" fill="#1a73e8"/>
-        </svg>
-        <span>Add to Chrome</span>
-      </a>
+  <!-- Modern Floating Nav -->
+  <nav class="glass" id="navbar">
+    <div class="nav-content">
+      <img src="sourcehorsefulllogo.png" alt="SourceHorse Logo">
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How It Works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#details">Details</a>
+        <a href="#faq">FAQ</a>
+        <a href="#download">Download</a>
+      </div>
     </div>
-  </header>
+  </nav>
 
-  <section class="features">
-    <div class="container">
-      <h2 style="margin:0 0 8px; font-size: clamp(24px, 3.2vw, 32px);">Why ClickEffects?</h2>
-      <p style="margin:0; color:var(--muted); max-width:720px; margin-left:auto; margin-right:auto;">
-        A tiny extension that brings a little delight to every click.
-      </p>
+  <!-- Hero Section -->
+  <section class="hero" id="download">
+    <div class="hero-content animate-on-scroll">
+      <img src="sourcehorsefulllogo.png" alt="SourceHorse Logo">
+      <h1>Meet SourceHorse — Your AI Browsing Buddy</h1>
+      <p>Tired of misinformation online and endless rabbit holes?<br>
+      Get instant AI-powered insights for smarter and more fun browsing.</p>
+      
+      <a class="cta"
+         href="https://chrome.google.com/webstore/detail/sourcehorse/hmnllocdiiklfchgcjibehigndgckgkp"
+         target="_blank"
+         onclick="return gtag_report_conversion('https://chrome.google.com/webstore/detail/sourcehorse/hmnllocdiiklfchgcjibehigndgckgkp');">
+        <span class="cta-icon">⬇️</span>
+        Download Free for Chrome
+      </a>
 
-      <div class="features-grid">
-        <article class="card">
-          <h3>Delightful Click Pops</h3>
-          <p>Clean particle bursts that feel smooth and responsive.</p>
-        </article>
-        <article class="card">
-          <h3>Customize the Vibe</h3>
-          <p>Pick colors that match your mood or brand. Subtle glow or bright pop—your choice.</p>
-        </article>
-        <article class="card">
-          <h3>Tiny & Efficient</h3>
-          <p>Minimal footprint and optimized drawing. Built to stay out of the way.</p>
-        </article>
+      <!-- Screenshot moved below the download button -->
+      <div class="screenshot animate-on-scroll">
+        <img src="screenshot1.png" alt="SourceHorse Extension Screenshot">
       </div>
     </div>
   </section>
 
-<footer>
-  <div class="container">
-    <small>
-      © <span id="year"></span> ClickEffects. All rights reserved. 
-      Created by <a href="https://talismanlabs.vercel.app/" target="_blank" rel="noopener noreferrer">Talisman Labs</a>
-    </small>
+  <!-- Features -->
+  <section id="features">
+    <div class="container">
+      <h2 class="animate-on-scroll">What SourceHorse Can Do</h2>
+      <div class="features">
+        <div class="feature glass animate-on-scroll">
+          <h3><span class="icon-shape"></span>Summarize & Highlight</h3>
+          <p>Break down complex content into key points with AI precision.</p>
+        </div>
+        <div class="feature glass animate-on-scroll">
+          <h3><span class="icon-shape"></span>Fact-Check in Seconds</h3>
+          <p>Spot misinformation and verify claims instantly with advanced AI.</p>
+        </div>
+        <div class="feature glass animate-on-scroll">
+          <h3><span class="icon-shape"></span>Smart Modes</h3>
+          <p>Switch between Fact Checker, Sarcastic, Philosopher, and more.</p>
+        </div>
+        <div class="feature glass animate-on-scroll">
+          <h3><span class="icon-shape"></span>Point out neat or fun facts</h3>
+          <p>SourceHorse makes fun insightful commentary on random things you're reading.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- How It Works -->
+  <section id="how">
+    <div class="container">
+      <h2 class="animate-on-scroll">How It Works</h2>
+      <div class="steps">
+        <div class="step glass animate-on-scroll">
+          <div class="step-number">1</div>
+          <p>Browse any page normally.</p>
+        </div>
+        <div class="step glass animate-on-scroll">
+          <div class="step-number">2</div>
+          <p>Click Analyze or highlight a section to analyze.</p>
+        </div>
+        <div class="step glass animate-on-scroll">
+          <div class="step-number">3</div>
+          <p>Get AI-powered summaries, fact checks, and insights.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Easy Login Info Bubble -->
+<div class="login-bubble-container">
+  <div class="login-bubble glass animate-on-scroll">
+    <div class="bubble-icon">🔑</div>
+    <div class="bubble-content">
+      <strong>Easy Login:</strong> Click log-in on SourceHorse, Type in your email and click send magic link, check your email and click "Log In" and SourceHorse is ready.
+    </div>
   </div>
-  <div style="text-align:center; margin:40px 0;">
-  <a href="https://docs.google.com/forms/d/e/1FAIpQLScDoAb5p0kGutg35-5s1YJUN0CqTaoh_Q6IhHFi_aLrA9hHcA/viewform?usp=header" 
-     target="_blank" rel="noopener" 
-     class="btn">
-    💬 Give Feedback
-  </a>
 </div>
 
+  <!-- Pricing -->
+  <section id="pricing">
+    <div class="container">
+      <h2 class="animate-on-scroll">Free Forever — Upgrade for More Power</h2>
+      <div class="pricing-cards">
+        <div class="plan glass animate-on-scroll">
+          <h3>Free</h3>
+          <p>10 analyzes/day<br>Always free</p>
+        </div>
+        <div class="plan glass featured animate-on-scroll">
+          <h3>Pro</h3>
+          <p>100 analyzes/day<br>$4.99/month</p>
+        </div>
+        <div class="plan glass animate-on-scroll">
+          <h3>Ultimate</h3>
+          <p>500 analyzes/day<br>$19.99/month</p>
+        </div>
+        <div class="plan glass animate-on-scroll">
+          <h3>Credits</h3>
+          <p>Buy extra analyze credits whenever you need them, credits never expire.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Privacy -->
+  <section id="faq">
+    <div class="container">
+      <h2 class="animate-on-scroll">Privacy First</h2>
+      <div class="privacy-section animate-on-scroll">
+        <p>🔒 <span class="privacy-highlight">SourceHorse never stores or sells your data.</span><br>Analyses happen securely and only for your session.</p>
+      </div>
+      <div class="faq">
+        <div class="faq-item glass animate-on-scroll">
+          <h3>Does SourceHorse save my browsing history?</h3>
+          <p>No. We do not store your browsing history or page contents. Some history is only stored locally in the history tab.</p>
+        </div>
+        <div class="faq-item glass animate-on-scroll">
+          <h3>How do I upgrade to Pro or Ultimate?</h3>
+          <p>Use our secure Stripe checkout directly in the extension.</p>
+        </div>
+        <div class="faq-item glass animate-on-scroll">
+          <h3>Will it slow down my browser?</h3>
+          <p>No. SourceHorse is lightweight and only activates when you analyze.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Details -->
+  <section id="details">
+    <div class="container">
+      <h2 class="animate-on-scroll">Details & Deep-Dive</h2>
+
+      <div class="details-grid">
+        <div class="card glass animate-on-scroll">
+          <h3>What it Actually Does</h3>
+          <p>When you click <b>Analyze</b> (or highlight text and analyze), the extension:</p>
+          <ol>
+            <li>Parses the visible article or the selection you highlighted.</li>
+            <li>Generates a concise summary and extracts key claims.</li>
+            <li>Returns results in a compact panel—no page reload needed.</li>
+          </ol>
+        </div>
+
+        <div class="card glass animate-on-scroll">
+          <h3>Modes</h3>
+          <ul>
+            <li><b>Default:</b> Balanced summary + insights.</li>
+            <li><b>Fact Checker:</b> Emphasis on claims, context, and caveats.</li>
+            <li><b>Sarcastic:</b> Same analysis with a spicy tone (fun for browsing).</li>
+            <li><b>Philosopher:</b> Perspective, ethics, & first principles.</li>
+          </ul>
+        </div>
+
+        <div class="card glass animate-on-scroll">
+          <h3>Privacy & Security</h3>
+          <ul>
+            <li>No browsing history is stored by us; a local history tab can keep your recent analyses on your machine.</li>
+            <li>Only the content you explicitly analyze is processed for that session.</li>
+            <li>Stripe handles payments; we never see your card details.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="details-accordions">
+        <details class="glass animate-on-scroll">
+          <summary>Keyboard Shortcuts</summary>
+          <div class="scroller">
+            <table class="kbt">
+              <tbody>
+                <tr><td><span class="kbd">CTRL+Shift</span> + <span class="kbd">X</span></td><td>Open / toggle SourceHorse</td></tr>
+                <tr><td><span class="kbd">CTRL+Shift</span> + <span class="kbd">H</span></td><td>Return widget to screen</td></tr>
+                <tr><td><span class="kbd">Alt</span> + <span class="kbd">Mouse drag</span></td><td>Analyze highlighted selection</td></tr>
+                <tr><td><span class="kbd">CTRL</span> + <span class="kbd">Mouse drag</span></td><td>Highlight SourceHorse Text</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </details>
+
+        <details class="glass animate-on-scroll">
+          <summary>Plans & Limits</summary>
+          <ul>
+            <li><b>Free:</b> 10 analyzes/day</li>
+            <li><b>Pro:</b> 100 analyzes/day — $4.99/month</li>
+            <li><b>Ultimate:</b> 500 analyzes/day — $19.99/month</li>
+            <li><b>Credits:</b> Buy extras anytime; credits don't expire.</li>
+          </ul>
+          <p style="opacity:.8">Heavy researcher? Start on Free, upgrade when you hit limits.</p>
+        </details>
+
+        <details class="glass animate-on-scroll">
+          <summary>Best Practices (Get Better Results)</summary>
+          <ul>
+            <li>Highlight the exact paragraph you care about before clicking analyze.</li>
+            <li>Switch to <b>Fact Checker</b> when you want claims + context + suggested verification paths.</li>
+            <li>Click the SourceHorse icon to minimize to stop analyzing pages to conserve usage.</li>
+          </ul>
+        </details>
+
+        <details class="glass animate-on-scroll">
+          <summary>What It Doesn't Do</summary>
+          <ul>
+            <li>It won't replace your judgment—use it to think faster, not less.</li>
+            <li>auto-track you across sites; you stay in control.</li>
+            <li>It won't steal your data.</li>
+          </ul>
+        </details>
+        <details class="glass animate-on-scroll">
+          <summary>See SourceHorse in Action</summary>
+          <div style="padding: 1rem 0;">
+            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px;">
+              <iframe 
+                src="https://www.youtube.com/embed/1zsVVFGrW_M" 
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                allowfullscreen>
+              </iframe>
+            </div>
+          </div>
+        </details>
+
+        <details class="glass animate-on-scroll">
+          <summary>Support</summary>
+          <p>Questions or ideas? <a href="mailto:sourcehorseai@gmail.com">Email us</a>. We love feedback.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    © 2025 SourceHorse — Created by Talisman Labs |
+    <a href="mailto:sourcehorseai@gmail.com">Contact</a>
+    <a href="https://sourcehorse.vercel.app/terms.html">Terms and Conditions</a>
+    <a href="https://sourcehorse.vercel.app/privacy.html">Privacy Policy</a>
+    <a target="_blank" href="https://superaiboom.com"><img src="https://superaiboom.com/assets/images/badge.png" alt="Super AI Boom" height="54"></a>
+    <footer>
+  <div class="container" style="text-align: center; margin-top: 20px;">
+    <small>© <span id="year"></span> SourceHorse. All rights reserved.</small>
+    <br />
+    <a 
+      href="https://docs.google.com/forms/d/e/1FAIpQLSd0b59zqB4usV4zfA8_Sj-tyZYsmdPmMDTL1jpsixjItWmDiQ/viewform?usp=header" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      class="cta" 
+      style="margin-top: 15px; display: inline-block; font-size: 0.9rem; padding: 12px 28px;"
+    >
+      💬 Give Feedback
+    </a>
+  </div>
 </footer>
 
+  </footer>
+
   <script>
-  // Click teaser (particles only)
-  (() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const canvas = document.getElementById('fx-teaser');
-    const ctx = canvas.getContext('2d');
-
-    let dpr = 1;
-    function resize() {
-      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-      const w = Math.floor(innerWidth * dpr);
-      const h = Math.floor(innerHeight * dpr);
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w; canvas.height = h;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
+    // Google Analytics conversion tracking
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      gtag('event', 'conversion', {
+          'send_to': 'AW-976201115/MSbaCPWt7M8aEJvLvtED',
+          'transaction_id': '',
+          'event_callback': callback
+      });
+      return false;
     }
-    addEventListener('resize', resize, { passive: true });
-    resize();
 
-    const rand = (a, b) => a + Math.random() * (b - a);
-    const particles = [];
-    const css = (name, fallback) => {
-      const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-      return v || fallback;
-    };
-    const cssNum = (name, fallback) => {
-      const n = parseFloat(css(name, ""));
-      return Number.isFinite(n) ? n : fallback;
+    // Scroll animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
     };
 
-    function spawn(x, y) {
-      const count = parseInt(css('--fx-count', '20'), 10);
-      const col = css('--fx-color', '#66ccff');
-      const sMin = cssNum('--fx-size-min', 2), sMax = cssNum('--fx-size-max', 5);
-      const spMin = cssNum('--fx-speed-min', 160), spMax = cssNum('--fx-speed-max', 420);
-      const lifeMin = cssNum('--fx-life-min', 350), lifeMax = cssNum('--fx-life-max', 850);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
 
-      for (let i = 0; i < count; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const spd = rand(spMin, spMax);
-        const life = rand(lifeMin, lifeMax);
-        particles.push({
-          x, y,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          life,
-          maxLife: life,
-          size: rand(sMin, sMax),
-          color: col
-        });
-      }
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      // Observe all elements with animate-on-scroll class
+      document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+      });
 
-    let last = performance.now();
-    function tick(now) {
-      const dt = (now - last) / 1000; last = now;
-      const drag = 0.0009;
-      const g = cssNum('--fx-gravity', 750);
-
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.vy += g * dt;
-        const d = (dt * 1000);
-        p.vx *= (1 - drag * d);
-        p.vy *= (1 - drag * d);
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.life -= (dt * 1000);
-        if (p.life <= 0) particles.splice(i, 1);
-      }
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (const p of particles) {
-        const a = Math.max(0, p.life / p.maxLife);
-        ctx.globalAlpha = a;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-
-      requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-
-    addEventListener('pointerdown', (e) => {
-      spawn(e.clientX, e.clientY);
-      const tip = document.getElementById('clickTip');
-      if (tip && !tip.classList.contains('hide')) tip.classList.add('hide');
-    }, { passive: true });
-
-    setTimeout(() => {
-      const tip = document.getElementById('clickTip');
-      if (tip && !tip.classList.contains('hide')) tip.classList.add('hide');
-    }, 8000);
-  })();
-
-  document.getElementById('year').textContent = new Date().getFullYear();
+      // Navbar scroll effect
+      const navbar = document.getElementById('navbar');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 100) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      });
+    });
   </script>
+
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
