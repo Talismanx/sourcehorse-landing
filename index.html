@@ -1047,14 +1047,25 @@
   </section>
 
   <!-- Footer -->
-  <footer>
-    <a href="https://peerpush.net/p/sourcehorse" target="_blank" rel="noopener" style="height: 60px;"><img src="https://peerpush.net/p/sourcehorse/badge" alt="SourceHorse badge" style="height: 60px;" /></a>
-    © 2025 SourceHorse — Created by Talisman Labs |
-    <a href="mailto:sourcehorseai@gmail.com">Contact</a>
-    <a href="https://sourcehorse.vercel.app/terms.html">Terms and Conditions</a>
-    <a href="https://sourcehorse.vercel.app/privacy.html">Privacy Policy</a>
-    <a target="_blank" href="https://superaiboom.com"><img src="https://superaiboom.com/assets/images/badge.png" alt="Super AI Boom" height="54"></a>
-    <footer>
+<footer style="text-align: center; padding: 20px 10px;">
+  <div style="display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;">
+    <a href="https://peerpush.net/p/sourcehorse" target="_blank" rel="noopener">
+      <img src="https://peerpush.net/p/sourcehorse/badge" alt="SourceHorse badge" style="height: 60px;" />
+    </a>
+    <a href="https://superaiboom.com" target="_blank" rel="noopener">
+      <img src="https://superaiboom.com/assets/images/badge.png" alt="Super AI Boom" height="54" />
+    </a>
+  </div>
+
+  © 2025 SourceHorse — Created by 
+  <a href="https://talismanlabs.vercel.app/" target="_blank" rel="noopener noreferrer" style="color: inherit; font-weight: 600; text-decoration: none;">
+  Talisman Labs
+  </a>
+  |
+  <a href="mailto:sourcehorseai@gmail.com">Contact</a>
+  <a href="https://sourcehorse.vercel.app/terms.html">Terms and Conditions</a>
+  <a href="https://sourcehorse.vercel.app/privacy.html">Privacy Policy</a>
+
   <div class="container" style="text-align: center; margin-top: 20px;">
     <small>© <span id="year"></span> SourceHorse. All rights reserved.</small>
     <br />
@@ -1068,7 +1079,12 @@
       💬 Give Feedback
     </a>
   </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </footer>
+
 
   </footer>
 
